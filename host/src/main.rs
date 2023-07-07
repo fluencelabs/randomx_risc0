@@ -35,5 +35,5 @@ fn main() {
         "Code you have proven should successfully verify; did you specify the correct method ID?",
     );
     let verify_time = verify_start.elapsed();
-    println!("host: verify succedded in {}", verify_time);
+    println!("host: verify succeeded in {}", verify_time);
 }

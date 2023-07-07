@@ -33,10 +33,12 @@ pub extern "C" fn free(_ptr: u32) {
 
 #[no_mangle]
 pub extern "C" fn Unwind_Resume(_ptr: u32) {
+    println!("external: Unwind_Resume");
 }
 
 #[no_mangle]
 pub extern "C" fn _Unwind_DeleteException() {
+    println!("external: _Unwind_DeleteException");
 }
 
 /*
@@ -47,199 +49,200 @@ pub extern "C" fn abort() {
 
 #[no_mangle]
 pub extern "C" fn _Unwind_GetTextRelBase() {
-    println!("unwind text rel base");
+    println!("external: unwind text rel base");
 }
 
 #[no_mangle]
 pub extern "C" fn _Unwind_GetDataRelBase() {
-    println!("unwind text get data rel base");
+    println!("external: unwind text get data rel base");
 }
 
 #[no_mangle]
 pub extern "C" fn _Unwind_GetRegionStart() {
-    println!("unwind get region start");
+    println!("external: unwind get region start");
 }
 
 #[no_mangle]
 pub extern "C" fn _Unwind_GetLanguageSpecificData() {
-    println!("unwind get lang specific data");
+    println!("external: unwind get lang specific data");
 }
 
 #[no_mangle]
 pub extern "C" fn _Unwind_GetIPInfo() {
-    println!("unwind get ip info");
+    println!("external: unwind get ip info");
 }
 
 #[no_mangle]
 pub extern "C" fn _Unwind_SetGR() {
-    println!("unwind set gr");
+    println!("external: unwind set gr");
 }
 
 #[no_mangle]
 pub extern "C" fn _Unwind_SetIP() {
-    println!("unwind set ip");
+    println!("external: unwind set ip");
 }
 
 #[no_mangle]
 pub extern "C" fn _Unwind_RaiseException() {
-    println!("unwind raise exception");
+    println!("external: unwind raise exception");
 }
 
 #[no_mangle]
 pub extern "C" fn _Unwind_Resume_or_Rethrow() {
-    println!("unwind resume or rethrow");
+    println!("external: unwind resume or rethrow");
 }
 
 #[no_mangle]
 pub extern "C" fn allocLargePagesMemory() {
-    println!("alloc large pages memory");
+    println!("external: alloc large pages memory");
 }
 
 #[no_mangle]
 pub extern "C" fn freePagedMemory() {
-    println!("free paged memory");
+    println!("external: free paged memory");
 }
 
 #[no_mangle]
 pub extern "C" fn stdout() {
-    println!("stdout");
+    println!("external: stdout");
 }
 
 #[no_mangle]
 pub extern "C" fn stdin() {
-    println!("stdin");
+    println!("external: stdin");
 }
 
 #[no_mangle]
 pub extern "C" fn stderr() {
-    println!("stderr");
+    println!("external: stderr");
 }
 
 #[no_mangle]
 pub extern "C" fn __eqtf2() {
-    println!("external");
+    println!("external: __eqtf2");
 }
 
 #[no_mangle]
 pub extern "C" fn _exit() {
-    println!("external");
+    println!("external: _exit");
 }
 
 #[no_mangle]
 pub extern "C" fn _fstat() {
-    println!("external");
+    println!("external: _fstat");
 }
 
 #[no_mangle]
 pub extern "C" fn _sbrk() {
-    println!("_sbrk called");
+    println!("external: _sbrk called");
 }
 
 #[no_mangle]
 pub extern "C" fn getpid() {
-    println!("external");
+    println!("external: getpid");
 }
 
 #[no_mangle]
 pub extern "C" fn __extenddftf2() {
-    println!("external");
+    println!("external: __extenddftf2");
 }
 
 #[no_mangle]
 pub extern "C" fn __netf2() {
-    println!("external");
+    println!("external: __netf2");
 }
 
 #[no_mangle]
 pub extern "C" fn __lttf2() {
-    println!("external");
+    println!("external: __lttf2");
 }
 
 #[no_mangle]
 pub extern "C" fn __trunctfdf2() {
-    println!("external");
+    println!("external: __trunctfdf2");
 }
 
 #[no_mangle]
 pub extern "C" fn __multf3() {
-    println!("external");
+    println!("external: __multf3");
 }
 
 #[no_mangle]
 pub extern "C" fn __fixtfsi() {
-    println!("external");
+    println!("external: __fixtfsi");
 }
 
 #[no_mangle]
 pub extern "C" fn __floatsitf() {
-    println!("external");
+    println!("external: __floatsitf");
 }
 
 #[no_mangle]
 pub extern "C" fn __subtf3() {
-    println!("external");
+    println!("external: __subtf3");
 }
 
 #[no_mangle]
 pub extern "C" fn __gttf2() {
-    println!("external");
+    println!("external: __gttf2");
 }
 
 #[no_mangle]
 pub extern "C" fn _write() {
-    println!("external");
+    println!("external: _write");
 }
 
 #[no_mangle]
 pub extern "C" fn _kill() {
-    println!("external");
+    println!("external: _kill");
 }
 
 #[no_mangle]
 pub extern "C" fn _getpid() {
-    println!("external");
+    println!("external: _getpid");
 }
 
 #[no_mangle]
 pub extern "C" fn _close() {
-    println!("external");
+    println!("external: _close");
 }
 
 #[no_mangle]
 pub extern "C" fn _isatty() {
-    println!("external");
+    println!("external: _isatty");
 }
 
 #[no_mangle]
 pub extern "C" fn _lseek() {
-    println!("external");
+    println!("external: _lseek");
 }
 
 #[no_mangle]
 pub extern "C" fn _read() {
-    println!("external");
+    println!("external: _read");
 }
 
 #[no_mangle]
 pub extern "C" fn fegetenv(_ptr: u32) -> i32 {
-    println!("external");
+    println!("external: fegetenv");
     0
 }
 
 #[no_mangle]
 pub extern "C" fn fesetenv(_ptr: u32) -> i32 {
-    println!("external");
+    println!("external: fesetenv");
     0
 }
 
 #[no_mangle]
 pub extern "C" fn sqrt() {
-    println!("external");
+    use risc0_zkvm::guest::env::syscall;
+    println!("external: sqrt");
 }
 
 #[no_mangle]
 pub extern "C" fn fesetround() {
-    println!("external");
+    println!("external: fesetround");
 }
 
 pub fn main() {
