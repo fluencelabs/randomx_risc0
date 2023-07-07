@@ -132,9 +132,6 @@ pub extern "C" fn _fstat() {
     println!("external: _fstat");
 }
 
-static mut LIMIT: u32 = 0x9000000;
-
-
 fn sys_alloc_aligned(bytes: usize, align: usize) -> *mut u8 {
     unsafe {
         extern "C" {
@@ -142,7 +139,7 @@ fn sys_alloc_aligned(bytes: usize, align: usize) -> *mut u8 {
         }
 
         static mut HEAP_POS: usize = 0;
-        let mut heap_pos = unsafe { HEAP_POS };
+        let mut heap_pos = HEAP_POS;
 
         if heap_pos == 0 {
             heap_pos = (&_end) as *const u8 as usize;
@@ -156,7 +153,7 @@ fn sys_alloc_aligned(bytes: usize, align: usize) -> *mut u8 {
         let ptr = heap_pos as *mut u8;
         heap_pos += bytes;
 
-        unsafe { HEAP_POS = heap_pos };
+        HEAP_POS = heap_pos;
         ptr
     }
 }
@@ -331,7 +328,11 @@ pub unsafe fn main1() {
     env::commit(&hash)
 }
 
+pub const RANDOMX_HASH_SIZE: u32 = 32;
+
+pub type size_t = ::std::os::raw::c_ulong;
 pub type randomx_flags = u32;
+
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct randomx_dataset {
