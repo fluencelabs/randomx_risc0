@@ -9,6 +9,8 @@ use risc0_zkvm::sha::Digest;
 
 use host_guest_interface::Interface;
 
+use std::time::Instant;
+
 fn main() {
     println!("host: start");
     let input = Interface::new("some key".to_string(), 0);
@@ -20,13 +22,18 @@ fn main() {
         .build();
 
     println!("host: executor from elf");
+    let prove_start = Instant::now();
     let mut executor = Executor::from_elf(env, METHOD_NAME_ELF).unwrap();
     println!("host: executor created");
     let session = executor.run().unwrap();
-    println!("host: session created");
+    let prove_time = prove_start.elapsed();
+    println!("host: session created in {}", prove_time);
     let receipt = session.prove().unwrap();
 
+    let verify_start = Instant::now();
     receipt.verify(<[u32; 8] as Into<Digest>>::into(METHOD_NAME_ID)).expect(
         "Code you have proven should successfully verify; did you specify the correct method ID?",
     );
+    let verify_time = verify_start.elapsed();
+    println!("host: verify succedded in {}", verify_time);
 }
