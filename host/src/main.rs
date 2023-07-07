@@ -13,13 +13,14 @@ use std::time::Instant;
 
 fn main() {
     println!("host: start");
-    let input = Interface::new("some key".to_string(), 0);
+    let input = Interface::new("aa some key".to_string(), 1);
 
     println!("host: before executor env");
     let env = ExecutorEnv::builder()
         .add_input(&to_vec(&input).unwrap())
-        .session_limit(usize::MAX)
-        .build();
+        .session_limit(None)
+        .build()
+        .unwrap();
 
     println!("host: executor from elf");
     let prove_start = Instant::now();
@@ -27,7 +28,7 @@ fn main() {
     println!("host: executor created");
     let session = executor.run().unwrap();
     let prove_time = prove_start.elapsed();
-    println!("host: session created in {}", prove_time);
+    println!("host: session created in {:?}", prove_time);
     let receipt = session.prove().unwrap();
 
     let verify_start = Instant::now();
@@ -35,5 +36,5 @@ fn main() {
         "Code you have proven should successfully verify; did you specify the correct method ID?",
     );
     let verify_time = verify_start.elapsed();
-    println!("host: verify succeeded in {}", verify_time);
+    println!("host: verify succeeded in {:?}", verify_time);
 }

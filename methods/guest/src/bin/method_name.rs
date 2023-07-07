@@ -123,8 +123,8 @@ pub extern "C" fn __eqtf2() {
 }
 
 #[no_mangle]
-pub extern "C" fn _exit() {
-    println!("external: _exit");
+pub extern "C" fn _exit(code: i32) {
+    println!("external: _exit({})", code);
 }
 
 #[no_mangle]
@@ -132,9 +132,52 @@ pub extern "C" fn _fstat() {
     println!("external: _fstat");
 }
 
+static mut LIMIT: u32 = 0x9000000;
+
+
+fn sys_alloc_aligned(bytes: usize, align: usize) -> *mut u8 {
+        unsafe {
+                    extern "C" {
+                                    static _end: u8;
+                                            }
+
+                            static mut HEAP_POS: usize = 0;
+
+                                    let mut heap_pos = unsafe { HEAP_POS };
+
+                                            if heap_pos == 0 {
+                                                            heap_pos = (&_end) as *const u8 as usize;
+                                                                    }
+
+                                                    let offset = heap_pos & (align - 1);
+                                                            if offset != 0 {
+                                                                            heap_pos += align - offset;
+                                                                                    }
+
+                                                                    let align = usize::min(align, 4);
+
+                                                                            let ptr = heap_pos as *mut u8;
+                                                                                    heap_pos += bytes;
+
+                                                                                            unsafe { HEAP_POS = heap_pos };
+                                                                                                    ptr
+                                                                                                            }
+}
+
 #[no_mangle]
-pub extern "C" fn _sbrk() {
-    println!("external: _sbrk called");
+pub extern "C" fn _sbrk(shift: usize) -> *mut u8 {
+    let result = sys_alloc_aligned(shift, 4);
+    println!("syscall: _sbrk(0x{:x}) => {:?}", shift, result);
+    result
+    /*
+    unsafe {
+        let prev_limit = LIMIT;
+        println!("external: _sbrk({}) => {}", shift, prev_limit);
+        LIMIT += shift;
+        
+        LIMIT
+    }
+    */
 }
 
 #[no_mangle]
@@ -188,8 +231,9 @@ pub extern "C" fn __gttf2() {
 }
 
 #[no_mangle]
-pub extern "C" fn _write() {
-    println!("external: _write");
+pub extern "C" fn _write(handle: i32, buf: u32, count: i32) -> i32 {
+    println!("external: _write({} {} {})", handle, buf, count);
+    count
 }
 
 #[no_mangle]
@@ -250,17 +294,16 @@ pub fn main() {
 }
 
 pub unsafe fn main1() {
-    println!("host: started");
+    println!("guest: started");
     let interface: Interface = env::read();
 
-    println!("host: read interface {:?}", interface);
+    println!("guest: read interface {:?}", interface);
 
     // let context = Context::new(interface.key.as_bytes(), true);
     let mut flags = randomx_get_flags();
-    println!("flags are {}", flags);
-    flags = flags | randomx_flags_RANDOMX_FLAG_FULL_MEM;
+    println!("guest: flags are {}", flags);
     let mut cache = randomx_alloc_cache(flags);
-    println!("cache is allocated {:?}", cache);
+    println!("guest: cache is allocated {:?}", cache);
     let key = interface.key.as_bytes();
     randomx_init_cache(
         cache,
@@ -268,16 +311,21 @@ pub unsafe fn main1() {
         key.len() as u32,
     );
 
-    println!("host: cache initialized");
+    println!("guest: cache initialized");
 
+    /*
     let mut dataset = randomx_alloc_dataset(flags);
     let length = randomx_dataset_item_count() as usize;
     randomx_init_dataset(dataset, cache, length as u32, length as u32);
+    */
 
-    println!("host: dataset initialized");
+    println!("guest: dataset initialized");
 
+    let mut dataset = std::ptr::null_mut();
     //let hasher = Hasher::new(Arc::new(context));
     let vm = randomx_create_vm(flags, cache, dataset);
+
+    println!("guest: vm created");
 
     //let output = hasher.hash(&interface.nonce.to_le_bytes());
     let nonce = interface.nonce.to_le_bytes();
