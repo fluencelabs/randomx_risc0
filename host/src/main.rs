@@ -3,9 +3,9 @@
 // `METHOD_NAME_ID` with `MULTIPLY_ID`
 use methods::{METHOD_NAME_ELF, METHOD_NAME_ID};
 use risc0_zkvm::serde::to_vec;
+use risc0_zkvm::sha::Digest;
 use risc0_zkvm::Executor;
 use risc0_zkvm::ExecutorEnv;
-use risc0_zkvm::sha::Digest;
 
 use host_guest_interface::Interface;
 

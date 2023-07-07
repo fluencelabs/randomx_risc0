@@ -313,15 +313,9 @@ pub unsafe fn main1() {
 
     println!("guest: cache initialized");
 
-    /*
-    let mut dataset = randomx_alloc_dataset(flags);
-    let length = randomx_dataset_item_count() as usize;
-    randomx_init_dataset(dataset, cache, length as u32, length as u32);
-    */
-
+    let mut dataset = std::ptr::null_mut();
     println!("guest: dataset initialized");
 
-    let mut dataset = std::ptr::null_mut();
     //let hasher = Hasher::new(Arc::new(context));
     let vm = randomx_create_vm(flags, cache, dataset);
 
