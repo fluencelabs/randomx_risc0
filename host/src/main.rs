@@ -6,8 +6,10 @@ use risc0_zkvm::serde::to_vec;
 use risc0_zkvm::sha::Digest;
 use risc0_zkvm::Executor;
 use risc0_zkvm::ExecutorEnv;
+use risc0_zkvm::FileSegmentRef;
 
 use host_guest_interface::Interface;
+use tempfile::tempdir;
 
 use std::time::Instant;
 
@@ -18,18 +20,30 @@ fn main() {
     println!("host: before executor env");
     let env = ExecutorEnv::builder()
         .add_input(&to_vec(&input).unwrap())
-        .session_limit(None)
+        .session_limit(Some(usize::MAX))
         .build()
         .unwrap();
 
     println!("host: executor from elf");
-    let prove_start = Instant::now();
+    let segment_dir = tempdir().unwrap();
+    let session_start = Instant::now();
     let mut executor = Executor::from_elf(env, METHOD_NAME_ELF).unwrap();
     println!("host: executor created");
-    let session = executor.run().unwrap();
-    let prove_time = prove_start.elapsed();
-    println!("host: session created in {:?}", prove_time);
+    let session = executor.run_with_callback(|segment| {
+        Ok(Box::new(
+                FileSegmentRef::new(
+                    &segment,
+                    &segment_dir.path(),
+                    )?
+                ))
+    }).unwrap();
+    let session_time = session_start.elapsed();
+    println!("host: session created in {:?}", session_time);
+
+    let prove_start = Instant::now();
     let receipt = session.prove().unwrap();
+    let prove_time = prove_start.elapsed();
+    println!("host: prove time is {:?}", prove_time);
 
     let verify_start = Instant::now();
     receipt.verify(<[u32; 8] as Into<Digest>>::into(METHOD_NAME_ID)).expect(

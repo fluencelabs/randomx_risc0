@@ -8,4 +8,6 @@ methods = { path = "../methods" }
 #risc0-zkvm = { version = "0.15.3" }
 risc0-zkvm = { path = "../../risc0/risc0/zkvm" }
 host_guest_interface = { path = "../host_guest_interface" }
+
+tempfile = "3.5"
 serde = "1.0"

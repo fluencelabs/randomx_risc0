@@ -32,7 +32,7 @@ pub extern "C" fn free(_ptr: u32) {
 */
 
 #[no_mangle]
-pub extern "C" fn Unwind_Resume(_ptr: u32) {
+pub extern "C" fn _Unwind_Resume(_ptr: u32) {
     println!("external: Unwind_Resume");
 }
 
@@ -124,13 +124,19 @@ pub extern "C" fn __eqtf2() {
 
 #[no_mangle]
 pub extern "C" fn _exit(code: i32) {
-    println!("external: _exit({})", code);
+    risc0_zkvm::guest::abort(&format!("abort({code})"));
 }
 
 #[no_mangle]
 pub extern "C" fn _fstat() {
     println!("external: _fstat");
 }
+
+#[no_mangle]
+pub extern "C" fn print_number(number: i32) {
+    println!("syscall: print_number(0x{:x})", number);
+}
+
 
 fn sys_alloc_aligned(bytes: usize, align: usize) -> *mut u8 {
     unsafe {
@@ -143,6 +149,10 @@ fn sys_alloc_aligned(bytes: usize, align: usize) -> *mut u8 {
 
         if heap_pos == 0 {
             heap_pos = (&_end) as *const u8 as usize;
+        }
+        
+        if heap_pos & 0xFFF != 0 {
+            heap_pos = (heap_pos + (0x1000 - 1)) & !(0x1000 - 1)  
         }
 
         let offset = heap_pos & (align - 1);
@@ -160,8 +170,10 @@ fn sys_alloc_aligned(bytes: usize, align: usize) -> *mut u8 {
 
 #[no_mangle]
 pub extern "C" fn _sbrk(shift: usize) -> *mut u8 {
-    let result = sys_alloc_aligned(shift, 4);
-    println!("syscall: _sbrk(0x{:x}) => {:?}", shift, result);
+    let page_size = 0x1000;
+    let rounded_shift = (shift + (page_size - 1)) & !(page_size - 1);
+    let result = sys_alloc_aligned(rounded_shift, 4);
+    println!("syscall: _sbrk(0x{:x} => ({:x})) => {:?}", shift, rounded_shift, result);
     result
     /*
     unsafe {
@@ -226,7 +238,7 @@ pub extern "C" fn __gttf2() {
 
 #[no_mangle]
 pub extern "C" fn _write(handle: i32, buf: u32, count: i32) -> i32 {
-    println!("external: _write({} {} {})", handle, buf, count);
+    println!("external: _write({} 0x{:x} {})", handle, buf, count);
     count
 }
 
@@ -260,6 +272,7 @@ pub extern "C" fn _read() {
     println!("external: _read");
 }
 
+/*
 #[no_mangle]
 pub extern "C" fn fegetenv(_ptr: u32) -> i32 {
     println!("external: fegetenv");
@@ -271,12 +284,7 @@ pub extern "C" fn fesetenv(_ptr: u32) -> i32 {
     println!("external: fesetenv");
     0
 }
-
-#[no_mangle]
-pub extern "C" fn sqrt() {
-    use risc0_zkvm::guest::env::syscall;
-    println!("external: sqrt");
-}
+*/
 
 #[no_mangle]
 pub extern "C" fn fesetround() {
@@ -337,7 +345,6 @@ pub type randomx_flags = u32;
 #[derive(Debug, Copy, Clone)]
 pub struct randomx_dataset {
         _unused: [u8; 0],
-}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct randomx_cache {
